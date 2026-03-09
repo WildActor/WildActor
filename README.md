@@ -1,6 +1,4 @@
-<div align="center">
-
-# WildActor: Unconstrained Identity-Preserving Video Generation
+<h1 align="center">WildActor: Unconstrained Identity-Preserving Video Generation</h1>
 
 <p align="center">
   <a href="https://arxiv.org/abs/2603.00586"><img src="https://img.shields.io/badge/arXiv-2603.00586-b31b1b.svg" alt="arXiv"></a>
@@ -8,11 +6,12 @@
   <a href="https://huggingface.co/papers/2603.00586"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-FFD21E" alt="Hugging Face Paper"></a>
   <a href="https://huggingface.co/datasets/WildActor/Actor-18M"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-Actor--18M-green" alt="Hugging Face Dataset"></a>
 </p>
+
 ## 🎬 Teaser
 
-<div align="center">
-  <img src="https://wildactor.github.io/materials/teaser.png" alt="WildActor Teaser" width="100%">
-</div>
+<p align="center">
+  <img src="./assets/teaser.png" alt="WildActor Teaser" width="100%">
+</p>
 
 ## 📢 News
 * **[2026.03]** Our paper is available on [arXiv](https://arxiv.org/abs/2603.00586)!
