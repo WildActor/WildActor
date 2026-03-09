@@ -4,7 +4,7 @@
   <a href="https://arxiv.org/abs/2603.00586"><img src="https://img.shields.io/badge/arXiv-2603.00586-b31b1b.svg" alt="arXiv"></a>
   <a href="https://wildactor.github.io/"><img src="https://img.shields.io/badge/Project%20Page-WildActor-blue" alt="Project Page"></a>
   <a href="https://huggingface.co/papers/2603.00586"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-FFD21E" alt="Hugging Face Paper"></a>
-  <a href="https://huggingface.co/datasets/WildActor/Actor-18M"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-Actor--18M-green" alt="Hugging Face Dataset"></a>
+  <a href="https://github.com/WildActor/WildActor/tree/main/Actor-18M"><img src="https://img.shields.io/badge/Dataset-Actor--18M-green?logo=github" alt="Dataset"></a>
 </p>
 
 ## 🎬 Teaser
