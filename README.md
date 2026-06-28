@@ -31,9 +31,10 @@ Inference scripts and detailed usage guidelines will be provided upon the releas
 If you find our work helpful, please consider citing our paper:
 
 ```bibtex
-@article{guo2026wildactor,
+@inproceedings{guo2026wildactor,
   title={WildActor: Unconstrained Identity-Preserving Video Generation},
-  author={Guo, Qin and Yang, Tianyu and He, Xuanhua and Shen, Fei and Zhang, Yong and Kang, Zhuoliang and Wei, Xiaoming and Xu, Dan},
-  journal={arXiv preprint arXiv:2603.00586},
-  year={2026}
+  author={Qin Guo and Tianyu Yang and Xuanhua He and Fei Shen and Yong Zhang and Zhuoliang Kang and Xiaoming Wei and Dan Xu},
+  booktitle={Forty-third International Conference on Machine Learning},
+  year={2026},
+  url={https://openreview.net/forum?id=wXkCkP8TtK}
 }
