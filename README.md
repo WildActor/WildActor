@@ -1,34 +1,84 @@
 <h1 align="center">WildActor: Unconstrained Identity-Preserving Video Generation</h1>
 
+<p align="center"><b>ICML 2026</b></p>
+
 <p align="center">
   <a href="https://arxiv.org/abs/2603.00586"><img src="https://img.shields.io/badge/arXiv-2603.00586-b31b1b.svg" alt="arXiv"></a>
   <a href="https://wildactor.github.io/"><img src="https://img.shields.io/badge/Project%20Page-WildActor-blue" alt="Project Page"></a>
-  <a href="https://huggingface.co/papers/2603.00586"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Paper-FFD21E" alt="Hugging Face Paper"></a>
   <a href="https://github.com/WildActor/WildActor/tree/main/Actor-18M"><img src="https://img.shields.io/badge/Dataset-Actor--18M-green?logo=github" alt="Dataset"></a>
 </p>
 
-## 🎬 Teaser
+## News
 
-<p align="center">
-  <img src="./assets/teaser.png" alt="WildActor Teaser" width="100%">
-</p>
+* **[2026.06]** We release the Actor-18M construction pipeline and Wan2.2-5B-compatible inference code.
+* **[2026.03]** WildActor is accepted to **ICML 2026**.
+* **[2026.03]** The paper is available on [arXiv](https://arxiv.org/abs/2603.00586).
 
-## 📢 News
-* **[2026.03]** Our paper is available on [arXiv](https://arxiv.org/abs/2603.00586)!
-* **[2026.03]** Code and data will be released after the base model's release. Stay tuned!
+## Overview
 
-## 📖 Abstract
-Production-ready human video generation requires digital actors to maintain strictly consistent full-body identities across dynamic shots, viewpoints and motions, a setting that remains challenging for existing methods. Prior methods often suffer from face-centric behavior that neglects body-level consistency, or produce copy-paste artifacts where subjects appear rigid due to pose locking. We present **Actor-18M**, a large-scale human video dataset designed to capture identity consistency under unconstrained viewpoints and environments. Actor-18M comprises **1.6M videos with 18M corresponding human images**, covering both arbitrary views and canonical three-view representations. Leveraging Actor-18M, we propose **WildActor**, a framework for any-view conditioned human video generation. We introduce an **Asymmetric Identity-Preserving Attention (AIPA)** mechanism coupled with a **Viewpoint-Adaptive Monte Carlo Sampling** strategy. Evaluated on the proposed Actor-Bench, **WildActor** consistently preserves full body identity under diverse shot compositions, large viewpoint transitions, and substantial motions, surpassing existing methods in these challenging settings.
+WildActor targets identity-preserving human video generation under unconstrained viewpoints, compositions, and motions. The project includes:
 
-## 🚀 TODO List
-- [ ] Release inference code and pre-trained weights.
-- [ ] Release the Actor-18M dataset building code.
+* **Actor-18M**: a human video data construction pipeline with face, body, and canonical three-view references.
+* **WildActor model code**: a Wan2.2-5B/DiffSynth-compatible inference entrypoint for multi-reference identity conditioning.
 
-## 🏃 Quick Start
-Inference scripts and detailed usage guidelines will be provided upon the release of the pre-trained weights.
+The released model code uses Wan2.2-5B as the public video backbone.
 
-## ✒️ Citation
-If you find our work helpful, please consider citing our paper:
+## Installation
+
+```bash
+conda create -n wildactor python=3.10 -y
+conda activate wildactor
+pip install -e ".[inference]"
+```
+
+For data utilities only:
+
+```bash
+pip install -e .
+```
+
+## Inference
+
+Prepare a request JSON with a text prompt and identity references. See [examples/inference_request.json](examples/inference_request.json).
+
+Set the WildActor-compatible DiffSynth backend and adapter weight path:
+
+```bash
+export DIFFSYNTH_ROOT=/path/to/DiffSynth-Studio
+export WILDACTOR_LORA=/path/to/wildactor_lora.safetensors
+```
+
+```bash
+python -m wildactor.inference.infer_wan22 \
+  --config configs/inference_wan22.yaml \
+  --request examples/inference_request.json \
+  --output outputs/wildactor_demo.mp4
+```
+
+## Actor-18M
+
+Actor-18M construction code is provided under [Actor-18M](Actor-18M). It supports:
+
+* filtering identity-consistent single-person videos,
+* extracting face/body references,
+* generating view-augmented and attribute-diverse references,
+* producing canonical front/side/back identity anchors,
+* writing JSONL files for downstream use.
+
+Run the lightweight pipeline:
+
+```bash
+python -m wildactor.data.pipeline \
+  --config configs/actor18m_pipeline.yaml
+```
+
+Set `input_jsonl` in [configs/actor18m_pipeline.yaml](configs/actor18m_pipeline.yaml) to your licensed input data.
+
+## TODO
+
+- [ ] Release WildActor adapter weights on Wan2.2-5B.
+
+## Citation
 
 ```bibtex
 @inproceedings{guo2026wildactor,
@@ -38,3 +88,4 @@ If you find our work helpful, please consider citing our paper:
   year={2026},
   url={https://openreview.net/forum?id=wXkCkP8TtK}
 }
+```

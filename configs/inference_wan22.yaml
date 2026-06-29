@@ -1,0 +1,48 @@
+backend:
+  name: diffsynth
+  # Optional local DiffSynth source checkout. Leave empty when diffsynth is
+  # installed as a package.
+  extra_python_paths: ${DIFFSYNTH_ROOT:-}
+  pipeline_module: ${WILDACTOR_PIPELINE_MODULE:-diffsynth.pipelines.wan_video_new_face_3views_t2v}
+  pipeline_class: ${WILDACTOR_PIPELINE_CLASS:-WanVideoPipeline}
+  model_config_class: ${WILDACTOR_MODEL_CONFIG_CLASS:-ModelConfig}
+  save_video_module: ${WILDACTOR_SAVE_VIDEO_MODULE:-diffsynth}
+
+model:
+  model_id: ${WAN_MODEL_ID:-Wan-AI/Wan2.2-TI2V-5B}
+  model_root: ${WAN_MODEL_ROOT:-}
+  torch_dtype: ${WAN_TORCH_DTYPE:-bfloat16}
+  device: ${WAN_DEVICE:-cuda}
+  offload_device: ${WAN_OFFLOAD_DEVICE:-cpu}
+  enable_vram_management: true
+  component_patterns:
+    diffusion: ${WAN_DIFFUSION_PATTERN:-diffusion_pytorch_model*.safetensors}
+    text_encoder: ${WAN_TEXT_ENCODER_PATTERN:-models_t5_umt5-xxl-enc-bf16.pth}
+    vae: ${WAN_VAE_PATTERN:-Wan2.1_VAE.pth}
+
+adapter:
+  lora: ${WILDACTOR_LORA:-}
+  lora_module: ${WILDACTOR_LORA_MODULE:-dit}
+  lora_rank: 128
+  lora_scale: ${WILDACTOR_LORA_SCALE:-1.0}
+  lora_target_modules: self_attn.q,self_attn.k,self_attn.v
+
+wildactor_adapter:
+  reference_only_lora: true
+  asymmetric_identity_preserving_attention: true
+  condition_keys: [face_closeup_img, face_img, body_img, 3views_img, three_views_img, reference_types]
+  i_rope:
+    face_temporal_offset: 4
+    body_temporal_offset: 128
+    reference_frame_stride: 4
+    spatial_start: max_video_hw
+
+generation:
+  height: ${WILDACTOR_HEIGHT:-720}
+  width: ${WILDACTOR_WIDTH:-1280}
+  num_frames: ${WILDACTOR_NUM_FRAMES:-81}
+  fps: ${WILDACTOR_FPS:-15}
+  seed: ${WILDACTOR_SEED:-42}
+  tiled: true
+  quality: 5
+  negative_prompt: "overexposed, static, blurry details, subtitles, worst quality, low quality, jpeg artifacts, malformed hands, malformed face, deformed limbs, duplicated limbs, slow motion"

@@ -1,0 +1,75 @@
+# Public model asset registry for Actor-18M data construction.
+#
+# Download Hugging Face hosted models with:
+#   bash Actor-18M/scripts/download_models.sh
+#
+# Non-Hugging-Face assets such as YOLO face weights or InsightFace packs are
+# listed as external/manual because their canonical source may vary by release
+# mirror and license.
+
+huggingface_models:
+  qwen3_vl_32b:
+    repo_id: Qwen/Qwen3-VL-32B-Instruct
+    env_var: QWEN3_VL_32B
+    default_dir: Qwen3-VL-32B-Instruct
+    used_by: [qwen_orientation, qwen_body_shot, qwen_face_attributes, qwen_edit_prompt, qwen_edit_evaluate, consistency_audit]
+  qwen_image_edit:
+    repo_id: Qwen/Qwen-Image-Edit-2509
+    env_var: QWEN_IMAGE_EDIT_ROOT
+    default_dir: Qwen-Image-Edit-2509
+    used_by: [qwen_edit_generate, multi_angle_qwen_edit]
+  qwen_image_edit_rapid:
+    repo_id: linoyts/Qwen-Image-Edit-Rapid-AIO
+    env_var: QWEN_IMAGE_EDIT_RAPID_ROOT
+    default_dir: Qwen-Image-Edit-Rapid-AIO
+    used_by: [qwen_edit_generate]
+  qwen_image_edit_angles_lora:
+    repo_id: dx8152/Qwen-Edit-2509-Multiple-angles
+    env_var: QWEN_IMAGE_EDIT_ANGLES_LORA
+    default_dir: Qwen-Edit-2509-Multiple-angles
+    used_by: [multi_angle_qwen_edit]
+
+external_assets:
+  arcface:
+    env_var: ARCFACE_MODEL
+    note: Face embedding model used for 1-fps coarse identity-stability filtering; release may provide InsightFace/ArcFace-compatible embeddings instead.
+  cotracker:
+    env_var: COTRACKER_MODEL
+    repo_env_var: COTRACKER_REPO
+    repo_url: https://github.com/facebookresearch/co-tracker
+    checkpoint_url: https://huggingface.co/facebook/cotracker3/resolve/main/scaled_offline.pth
+    note: CoTracker3 offline checkpoint used for dense point tracking, 8-fps fine filtering, and camera-cut/occlusion rejection.
+  clip:
+    env_var: CLIP_MODEL
+    note: CLIP model used for frame-to-frame appearance consistency, threshold 0.45.
+  clip_i:
+    env_var: CLIP_I_MODEL
+    note: CLIP image embedding model used for Qwen-Image-Edit identity-preservation checks.
+  retinaface:
+    env_var: RETINAFACE_MODEL
+    note: Face detector used with InsightFace antelopev2 detection and BiSeNet parsing in the face-crop stage.
+  yolo_world:
+    env_var: YOLO_WORLD_MODEL
+    note: Text-prompted person detector for body boxes before SAM2 body masks.
+  sam2:
+    env_var: SAM2_MODEL
+    repo_env_var: SAM2_REPO
+    config_env_var: SAM2_CONFIG
+    repo_url: https://github.com/facebookresearch/sam2
+    checkpoint_url: https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt
+    note: SAM 2.1 image/video segmenter checkpoint for person masks. Users can point SAM2_MODEL/SAM2_CONFIG at tiny, small, base, or large checkpoints.
+  dwpose:
+    env_var: DWPOSE_MODEL
+    note: Pose estimator used to find golden videos and canonical front/side/back anchor frames.
+  antelopev2:
+    env_var: ANTELOPEV2_ROOT
+    note: InsightFace antelopev2 pack used by face crop stages.
+  insightface_buffalo_l:
+    env_var: INSIGHTFACE_BUFFALO_L
+    note: InsightFace buffalo_l pack used by identity and consistency checks.
+  yolo_pose:
+    env_var: YOLO_POSE_MODEL
+    note: Ultralytics YOLO pose checkpoint, for example yolo11l-pose.pt.
+  yolo_face:
+    env_var: YOLO_FACE_MODEL
+    note: YOLO face checkpoint compatible with ultralytics.

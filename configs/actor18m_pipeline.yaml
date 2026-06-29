@@ -1,0 +1,62 @@
+# Public Actor-18M construction recipe.
+#
+# Internal source paths, proprietary models, and unreleased raw data are
+# intentionally absent. Fill the paths below with your own licensed data and
+# model endpoints/checkpoints.
+
+input_jsonl: examples/input.jsonl
+output_dir: outputs/actor18m
+
+frame_sampling:
+  coarse_fps: 1.0
+  fine_fps: 8.0
+  max_frames: 32
+
+filters:
+  min_duration_sec: 2.0
+  min_width: 256
+  min_height: 256
+  require_single_person: true
+  face_similarity_threshold: 0.40
+  clip_similarity_threshold: 0.45
+  min_track_ratio: 0.60
+
+references:
+  face_detector: RetinaFace
+  face_parser: BiSeNet
+  body_detector: YOLO-World
+  body_segmenter: SAM2
+  face_crop_scale: 1.35
+  body_crop_scale: 1.10
+  min_visibility: 0.45
+
+augmentation:
+  recipe_config: Actor-18M/configs/augmentation_recipes.yaml
+  subset_a_generator: Qwen-Image-Edit-Multiple-Angles
+  subset_a_verifier: Qwen3-VL-32B
+  subset_a_views:
+    face: [front, left_side, right_side, back, top_down, bottom_up]
+    body: [front, left_side, right_side, back, top_down, bottom_up]
+  subset_b_instruction_model: Qwen3-VL-32B
+  subset_b_editor: Qwen-Image-Edit
+  subset_b_verifier: CLIP-I
+  subset_b_attributes:
+    environments: configs/attributes/environments.txt
+    camera_angles: configs/attributes/camera_angles.txt
+    lighting_modifiers: configs/attributes/lighting_modifiers.txt
+    outfits_and_styles: configs/attributes/outfits_and_styles.txt
+    lighting_and_vibe: configs/attributes/lighting_and_vibe.txt
+    expressions: configs/attributes/expressions.txt
+    lighting: configs/attributes/lighting.txt
+    motions: configs/attributes/motions.txt
+  subset_c_pose_estimator: DWPose
+  subset_c_generator: Nano-Banana
+  subset_c_verifier: Qwen3-VL-32B
+  subset_c_views: [front, side, back]
+
+sampling:
+  num_face_refs: 3
+  num_body_refs: 3
+  angular_delta_deg: 25.0
+  decay: 0.25
+  seed: 42

@@ -1,0 +1,30 @@
+walking
+running
+sitting
+standing
+reading
+drinking
+eating
+talking
+phone calling
+waving
+jumping
+dancing
+cycling
+yoga
+stretching
+boxing
+swimming
+playing basketball
+playing football
+hiking
+singing
+playing guitar
+playing piano
+painting
+photography
+laughing
+crying
+arguing
+hugging
+shaking hands

@@ -1,0 +1,169 @@
+attribute_pools:
+  environments: ../../configs/attributes/environments.txt
+  camera_angles: ../../configs/attributes/camera_angles.txt
+  lighting_modifiers: ../../configs/attributes/lighting_modifiers.txt
+  outfits_and_styles: ../../configs/attributes/outfits_and_styles.txt
+  lighting_and_vibe: ../../configs/attributes/lighting_and_vibe.txt
+  expressions: ../../configs/attributes/expressions.txt
+  lighting: ../../configs/attributes/lighting.txt
+  motions: ../../configs/attributes/motions.txt
+
+qwen3_vl_prompts:
+  orientation:
+    output_schema:
+      orientation: [front, side, back, invalid]
+      sub_angle: [full_front, quarter_side, full_side, three_quarter_back, full_back, unknown]
+      facing_direction: [left, right, center, unknown]
+      confidence: int_1_to_10
+    template: |
+      Task: Analyze the image quality and subject orientation.
+      Constraint: Return ONLY a JSON object. No explanations.
+
+      CRITICAL FILTERING RULES:
+      1. NOT A REAL PERSON: If image shows ONLY wig/hair/clothes/mask, classify 'invalid'.
+      2. BAD CUTOUT: Floating body parts, jagged edges -> 'invalid'.
+      3. LOW QUALITY: Blurry, pixelated, dark -> 'invalid'.
+
+      Definitions:
+      1. 'orientation': ['front', 'side', 'back', 'invalid']
+         - 'back': Must show shoulders/neck. NOT just hair.
+      2. 'sub_angle': ['full_front', 'quarter_side', 'full_side', 'three_quarter_back', 'full_back', 'unknown']
+      3. 'facing_direction': ['left', 'right', 'center', 'unknown']
+      4. 'confidence': 1-10.
+      Example output:
+      {"orientation": "invalid", "sub_angle": "unknown", "facing_direction": "unknown", "confidence": 10}
+
+  body_shot_type:
+    output_schema:
+      shot_type: [full_body, upper_body, head_shoulders, head_only, headless_body, invalid]
+      confidence: int_1_to_10
+    template: |
+      Task: Analyze the 'Shot Type' (framing) of the person in the image.
+      Constraint: Return ONLY a JSON object. No explanations.
+
+      CRITICAL FILTERING:
+      - If image is blurry, low res, just a wig/mask (no body), or glitchy -> 'invalid'.
+      - If image shows a body/torso but the HEAD is cut off/missing -> 'headless_body'.
+
+      Definitions for 'shot_type':
+      1. 'full_body': Head to feet/knees visible.
+      2. 'upper_body': Head to waist/hips visible.
+      3. 'head_shoulders': Head and shoulders visible (Bust shot).
+      4. 'head_only': Tight close-up on face. Shoulders barely visible.
+      5. 'headless_body': Body is visible (neck down), but HEAD is missing or out of frame.
+      6. 'invalid': Not a real person (wig only), bad quality, or messed-up cutout.
+
+      Output Format:
+      {"shot_type": "upper_body", "confidence": 9}
+
+  face_quality_direction_composition:
+    output_schema:
+      quality: [high, low, invalid]
+      facing_direction: [front, left, right, up, down]
+      composition: [pure_face, face_with_clothes]
+      confidence: int_1_to_10
+    template: |
+      Task: Analyze this FACE CROP image for Quality, Direction, and Composition.
+      Constraint: Return ONLY a JSON object.
+
+      1. 'quality': ['high', 'low', 'invalid']
+         - 'high': Sharp details, good lighting, real human face.
+         - 'low': Blurry, heavy motion blur, pixelated, too dark/bright.
+         - 'invalid': Not a face, face mask, cartoon, severe occlusion, or messed-up crop.
+
+      2. 'facing_direction': ['front', 'left', 'right', 'up', 'down']
+         - 'front': Looking directly at camera.
+         - 'left': Looking to the LEFT of the image.
+         - 'right': Looking to the RIGHT of the image.
+         - 'up' / 'down': Looking significantly up or down.
+
+      3. 'composition': ['pure_face', 'face_with_clothes']
+         - 'pure_face': Tight crop. Only face, hair, and neck are visible. NO shoulders, NO collars, NO clothes visible.
+         - 'face_with_clothes': Wider crop. Shoulders, collars, or clothing fabric are clearly visible at the bottom or sides.
+
+      4. 'confidence': Integer 1-10.
+
+      Example Output:
+      {"quality": "high", "facing_direction": "left", "composition": "face_with_clothes", "confidence": 9}
+
+  generated_edit_body_audit:
+    template: |
+      Evaluate this generated image. The goal is to verify if the person is integrated naturally into the background.
+      Return JSON ONLY. No markdown.
+      1. 'quality': 'high' (sharp, detailed), 'low' (blurry, pixelated), 'bad' (broken, severe artifacts).
+      2. 'harmony': 'yes' (lighting/shadows match the background, no sticker effect), 'no' (looks pasted, obvious white edges, lighting mismatch).
+      3. 'proportions': 'normal' or 'abnormal'.
+      4. 'visibility': 'full_body', 'upper_body', 'head_shoulders', 'head_only', or 'invalid'.
+      5. 'orientation': 'front', 'side', 'back'.
+      Example: {"quality": "high", "harmony": "yes", "proportions": "normal", "visibility": "upper_body", "orientation": "front"}
+
+  generated_edit_face_audit:
+    template: |
+      Evaluate this generated FACE close-up.
+      Return JSON ONLY. No markdown.
+      1. 'quality': 'high' (sharp features, realistic skin), 'low' (blurry), 'bad' (severe distortion, monster face).
+      2. 'harmony': 'yes' or 'no'.
+      3. 'proportions': 'normal' or 'abnormal'.
+      4. 'visibility': 'full_face', 'profile_side', 'back_head'.
+      5. 'orientation': 'front', 'left', 'right', 'up', 'down'.
+      Example: {"quality": "high", "harmony": "yes", "proportions": "normal", "visibility": "full_face", "orientation": "front"}
+
+qwen_edit_instruction_generation:
+  body:
+    sampled_pools: [environments, camera_angles, lighting_modifiers]
+    num_instructions: 3
+    template: |
+      You are an expert instruction generator for AI Image Editing.
+      Your Goal: Generate 3 DISTINCT editing instructions for this image.
+
+      Revised Requirements:
+      1. Identity Preservation: You MUST Keep the person's facial identity and general appearance recognizable. However, slight pose adjustments to fit the new camera angle are allowed.
+      2. Dynamic Integration (CRITICAL): Do NOT just replace the background. You MUST instruction the model to adjust the lighting, shadows, and camera angle to make the person look like they truly belong in the new scene.
+      3. Creativity: Combine sampled scenes, camera angles, and lighting.
+
+      Output Format: Return ONLY a JSON list of 3 strings.
+
+  face:
+    sampled_pools: [outfits_and_styles, lighting_and_vibe]
+    face_lights: [butterfly lighting, split lighting, rembrandt lighting, colorful gel lighting, soft diffuse light]
+    num_instructions: 3
+    template: |
+      You are an expert instruction generator for AI Image Editing.
+      Your Goal: Generate 3 DISTINCT editing instructions for this face close-up.
+
+      Requirements:
+      1. Identity: Keep the person's facial features EXACTLY as they are.
+      2. Style & Atmosphere: Focus on changing the artistic style, clothing material, and dramatic lighting.
+      3. Inspiration: Combine sampled outfits, vibes, and face lighting.
+
+      Output Format: Return ONLY a JSON list of 3 strings.
+
+multi_angle_camera_prompts:
+  left_45: "将镜头向左旋转45度 Rotate the camera 45 degrees to the left."
+  right_45: "将镜头向右旋转45度 Rotate the camera 45 degrees to the right."
+  left_90: "将镜头向左旋转90度 Rotate the camera 90 degrees to the left."
+  right_90: "将镜头向右旋转90度 Rotate the camera 90 degrees to the right."
+  left_45_bird: "将镜头向左旋转45度 Rotate the camera 45 degrees to the left. 将相机转向鸟瞰视角 Turn the camera to a bird's-eye view."
+  right_45_bird: "将镜头向右旋转45度 Rotate the camera 45 degrees to the right. 将相机转向鸟瞰视角 Turn the camera to a bird's-eye view."
+  close_up: "将镜头转为特写镜头 Turn the camera to a close-up."
+  worm_view: "将相机切换到仰视视角 Turn the camera to a worm's-eye view."
+
+nano_banana_prompts:
+  three_views: |
+    Based on the provided reference images, generate a standard three-view character sheet of the person.
+
+    Requirements:
+    1. Composition: a single image showing the person's full-body front, side, and back views arranged side-by-side.
+    2. Background: a completely plain, solid white background with no shadows or textures.
+    3. Pose and expression: neutral standing pose with hands naturally at the sides, holding no objects, neutral facial expression.
+    4. Fidelity: accurately preserve body shape, hairstyle, skin tone, and clothing from the reference images.
+    5. Clean output: no watermark, text, logo, or unrelated artifacts.
+  face_closeup: |
+    Using the provided reference images, generate a single high-fidelity photorealistic close-up portrait of the person.
+
+    Requirements:
+    1. Preserve the person's exact facial features, face shape, hairstyle, hair color, and skin tone.
+    2. Professional headshot composition, focused on face and shoulders, looking directly at camera when possible.
+    3. Neutral expression.
+    4. Clean studio background with soft professional lighting.
+    5. No watermark, text, logo, or unrelated objects.

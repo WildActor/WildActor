@@ -1,0 +1,7 @@
+{
+  "prompt": "A young actor in a black jacket walks across a rainy neon street, turns toward the camera, and continues forward with consistent clothing and body shape.",
+  "face_refs": ["assets/teaser.png"],
+  "body_refs": ["assets/teaser.png"],
+  "three_view_ref": "assets/teaser.png",
+  "output": "outputs/wildactor_demo.mp4"
+}

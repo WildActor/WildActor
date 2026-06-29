@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wildactor"
+version = "0.1.0"
+description = "Open-source WildActor inference and Actor-18M data construction utilities."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "Pillow",
+  "tqdm",
+  "opencv-python",
+  "numpy",
+  "PyYAML",
+]
+
+[project.optional-dependencies]
+inference = ["torch", "diffsynth>=1.1.7", "safetensors"]
+
+[project.scripts]
+wildactor-data = "wildactor.data.pipeline:main"
+wildactor-data-full = "wildactor.data.full_pipeline:main"
+wildactor-infer = "wildactor.inference.infer_wan22:main"
+
+[tool.setuptools.packages.find]
+include = ["wildactor*"]

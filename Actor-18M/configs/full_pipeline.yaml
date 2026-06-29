@@ -1,0 +1,106 @@
+# Actor-18M full data pipeline configuration.
+#
+# This file is release-safe: model checkpoints, datasets, and optional source
+# roots are supplied through environment variables. Export the variables below
+# before invoking the pipeline.
+
+source_roots:
+  remote_vlogger: ${VLOGGER_ROOT}
+  local_reference: ${LOCAL_REFERENCE_ROOT:-../../../remote_reference/code}
+
+recipes:
+  augmentation: Actor-18M/configs/augmentation_recipes.yaml
+
+runtime:
+  python: ${PYTHON:-python}
+  conda_setup: ${CONDA_SETUP:-}
+  workers: ${WORKERS:-8}
+  use_rapid: ${USE_RAPID:-false}
+  dataset: ${CONSISTENCY_DATASET:-QwenEdit}
+  target: ${CONSISTENCY_TARGET:-body}
+  filter_version: ${FILTER_VERSION:-f93}
+  nano_banana_model: ${NANO_BANANA_MODEL:-gemini-3.1-flash-image}
+  envs:
+    base: ${ENV_BASE:-synth}
+    qwen: ${ENV_QWEN:-qwen}
+    qwen_edit: ${ENV_QWEN_EDIT:-qwen2}
+    stand_in: ${ENV_STAND_IN:-Stand-In}
+    yolo: ${ENV_YOLO:-qwen}
+    nano: ${ENV_NANO:-synth}
+
+models:
+  arcface: ${ARCFACE_MODEL:-}
+  cotracker: ${COTRACKER_MODEL:-}
+  cotracker_repo: ${COTRACKER_REPO:-}
+  clip: ${CLIP_MODEL:-}
+  clip_i: ${CLIP_I_MODEL:-}
+  retinaface: ${RETINAFACE_MODEL:-}
+  yolo_world: ${YOLO_WORLD_MODEL:-}
+  sam2: ${SAM2_MODEL:-}
+  sam2_repo: ${SAM2_REPO:-}
+  sam2_config: ${SAM2_CONFIG:-configs/sam2.1/sam2.1_hiera_t.yaml}
+  dwpose: ${DWPOSE_MODEL:-}
+  qwen3_vl_32b: ${QWEN3_VL_32B}
+  antelopev2: ${ANTELOPEV2_ROOT}
+  bisenet: ${BISENET_MODEL:-facexlib:bisenet}
+  insightface_buffalo_l: ${INSIGHTFACE_BUFFALO_L:-weights/insightface/buffalo_l}
+  yolo_pose: ${YOLO_POSE_MODEL}
+  yolo_face: ${YOLO_FACE_MODEL}
+  qwen_image_edit: ${QWEN_IMAGE_EDIT_ROOT}
+  qwen_image_edit_rapid: ${QWEN_IMAGE_EDIT_RAPID_ROOT}
+  qwen_image_edit_angles_lora: ${QWEN_IMAGE_EDIT_ANGLES_LORA}
+
+endpoints:
+  official_nano_banana: https://generativelanguage.googleapis.com/v1beta/interactions
+
+paths:
+  opens2v_json_dir: ${OPENS2V_JSON_DIR}
+  opens2v_video_root: ${OPENS2V_VIDEO_ROOT}
+  extract_human_root: ${EXTRACT_HUMAN_ROOT}
+  orientation_root: ${ORIENTATION_ROOT}
+  body_shot_root: ${BODY_SHOT_ROOT}
+  face_crop_root: ${FACE_CROP_ROOT}
+  face_attr_root: ${FACE_ATTR_ROOT}
+  opens2v_merged_jsonl: ${OPENS2V_MERGED_JSONL}
+
+  pt2v_jsonl_root: ${PT2V_JSONL_ROOT}
+  pt2v_pose_face_root: ${PT2V_POSE_FACE_ROOT}
+  pt2v_pose_direction_root: ${PT2V_POSE_DIRECTION_ROOT}
+
+  identity_cluster_input: ${IDENTITY_CLUSTER_INPUT}
+  identity_cluster_cache: ${IDENTITY_CLUSTER_CACHE:-step_10_faces_emb.npy}
+
+  qwen_edit_seed_jsonl: ${QWEN_EDIT_SEED_JSONL}
+  qwen_edit_enriched_prefix: ${QWEN_EDIT_ENRICHED_PREFIX}
+  qwen_edit_results_root: ${QWEN_EDIT_RESULTS_ROOT}
+  qwen_edit_eval_root: ${QWEN_EDIT_EVAL_ROOT}
+
+  nano_seed_jsonl: ${NANO_SEED_JSONL}
+  nano_output_root: ${NANO_OUTPUT_ROOT}
+  nano_output_jsonl: ${NANO_OUTPUT_JSONL}
+  multi_angle_seed_jsonl: ${MULTI_ANGLE_SEED_JSONL}
+  multi_angle_output_root: ${MULTI_ANGLE_OUTPUT_ROOT}
+
+  unified_clean_root: ${UNIFIED_CLEAN_ROOT}
+  consistency_eval_root: ${CONSISTENCY_EVAL_ROOT}
+  final_jsonl: ${FINAL_JSONL}
+  tfrecord_root: ${TFRECORD_ROOT}
+
+stage_order:
+  - opens2v_extract_human
+  - qwen_orientation
+  - face_crop_bisenet
+  - qwen_body_shot
+  - qwen_face_attributes
+  - merge_filter_opens2v
+  - pt2v_pose_face
+  - pt2v_pose_orientation
+  - identity_cluster_sweep
+  - qwen_edit_prompt
+  - qwen_edit_generate
+  - qwen_edit_evaluate
+  - nano_banana_generate
+  - multi_angle_qwen_edit
+  - consistency_audit
+  - face_sim_for_qwenedit_body
+  - export_tfrecord

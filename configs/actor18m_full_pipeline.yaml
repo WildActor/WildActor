@@ -1,0 +1,4 @@
+# Compatibility wrapper.
+# Prefer Actor-18M/configs/full_pipeline.yaml for the release data pipeline.
+
+include: ../Actor-18M/configs/full_pipeline.yaml
